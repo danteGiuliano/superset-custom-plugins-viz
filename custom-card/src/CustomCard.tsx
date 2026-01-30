@@ -35,61 +35,41 @@ const Styles = styled.div<CustomCardStylesProps>`
   height: ${({ height }) => height}px;
   width: ${({ width }) => width}px;
 
+  background-image: ${({ backgroundImage }) =>
+    backgroundImage ? `url(${backgroundImage})` : 'none'};
+  background-position: ${({ backgroundPositionX, backgroundPositionY }) =>
+    `${backgroundPositionX || 0}% ${backgroundPositionY || 0}%`};
+  background-size: ${({ backgroundSize }) => backgroundSize || 'cover'};
+  background-repeat: ${({ backgroundRepeat }) => backgroundRepeat || 'no-repeat'};
+
   h3 {
-    /* You can use your props to control CSS! */
     margin-top: 0;
     margin-bottom: ${({ theme }) => theme.gridUnit * 3}px;
     font-size: ${({ theme, headerFontSize }) =>
-    theme.typography.sizes[headerFontSize]}px;
+      theme.typography.sizes[headerFontSize]}px;
     font-weight: ${({ theme, boldText }) =>
-    theme.typography.weights[boldText ? 'bold' : 'normal']};
+      theme.typography.weights[boldText ? 'bold' : 'normal']};
   }
 
   pre {
     height: ${({ theme, headerFontSize, height }) =>
-    height - theme.gridUnit * 12 - theme.typography.sizes[headerFontSize]}px;
+      height - theme.gridUnit * 12 - theme.typography.sizes[headerFontSize]}px;
   }
 `;
 
-/**
- * ******************* WHAT YOU CAN BUILD HERE *******************
- *  In essence, a chart is given a few key ingredients to work with:
- *  * Data: provided via `props.data`
- *  * A DOM element
- *  * FormData (your controls!) provided as props by transformProps.ts
- */
-
 export default function CustomCard(props: CustomCardProps) {
-  // height and width are the height and width of the DOM element as it exists in the dashboard.
-  // There is also a `data` prop, which is, of course, your DATA 🎉
   const { data, height, width } = props;
-
+  const value = calculateMetric(data);
   const rootElem = createRef<HTMLDivElement>();
-
-  // Often, you just want to access the DOM and do whatever you want.
-  // Here, you can do that with createRef, and the useEffect hook.
-  useEffect(() => {
-    const root = rootElem.current as HTMLElement;
-    console.log('Plugin element', root);
-  });
-
-  console.log('Plugin sss  props', props);
-
-  function rgbaToCss(color?: any):string {
+  
+  function rgbaToCss(color?: any): string {
     if (!color) return '#FFFFFF';
-
     const { r, g, b, a } = color;
-
     if (a === undefined || a === 1) {
       return `rgb(${r}, ${g}, ${b})`;
     }
-
     return `rgba(${r}, ${g}, ${b}, ${a})`;
   }
-
-
-
-
 
   return (
     <Styles
@@ -98,16 +78,49 @@ export default function CustomCard(props: CustomCardProps) {
       headerFontSize={props.headerFontSize}
       height={height}
       width={width}
+      backgroundImage={props.backgroundImage}
       backgroundColor={rgbaToCss(props.backgroundColor)}
+      backgroundPositionX={props.backgroundPositionX}
+      backgroundPositionY={props.backgroundPositionY}
+      backgroundSize={props.backgroundSize}
+      backgroundRepeat={props.backgroundRepeat}
     >
       <h3>{props.headerText}</h3>
-      <pre>
-        <div >
-          ${JSON.stringify(data, null, 2)}
-        </div>
-
-      </pre>
-
+      <div
+        style={{
+          fontSize: '64px',
+          fontWeight: 700,
+          textAlign: 'center',
+          marginTop: '24px',
+        }}
+      >
+        {value.toLocaleString('es-AR', {
+          maximumFractionDigits: 2,
+        })}
+      </div>
     </Styles>
   );
 }
+
+//TODO ESTO ESTA MUY MAL HAY QUE RECALCULAR LA LOGICA
+function calculateMetric(rows: Record<string, any>[]): number {
+  if (!rows || rows.length === 0) return 0;
+
+  const metricKey = Object.keys(rows[0]).find(
+    key => key !== 'name'
+  );
+
+  if (!metricKey) return 0;
+
+  const values = rows
+    .map(row => Number(row[metricKey]))
+    .filter(v => !isNaN(v));
+
+  if (values.length === 0) return 0;
+
+  return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+
+
+

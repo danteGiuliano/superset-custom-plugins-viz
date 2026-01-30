@@ -54,27 +54,29 @@ export default function transformProps(chartProps: ChartProps) {
     headerFontSize, 
     headerText, 
     backgroundColor, 
-    background_image,
-    background_position_x,
-    background_position_y,
-    background_size,
-    background_repeat
+    backgroundImage,
+    backgroundPositionY,
+    backgroundPositionX,
+    backgroundSize,
+    backgroundRepeat
   } = formData;
   
   const data = queriesData[0].data as TimeseriesDataRecord[];
+
+
   
-  return {
-    width,
-    height,
-    data,
-    backgroundColor,
-    boldText,
-    headerFontSize,
-    headerText,
-    backgroundImage: background_image,
-    backgroundPositionX: background_position_x,
-    backgroundPositionY: background_position_y,
-    backgroundSize: background_size,
-    backgroundRepeat: background_repeat,
-  };
+return {
+  width,
+  height,
+  data,
+  backgroundColor,
+  boldText,
+  headerFontSize,
+  headerText,
+  backgroundImage: backgroundImage,
+  backgroundPositionX: backgroundPositionX,  
+  backgroundPositionY: backgroundPositionY,  
+  backgroundSize: backgroundSize,            
+  backgroundRepeat: backgroundRepeat,        
+};
 }
